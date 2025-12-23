@@ -1,0 +1,18 @@
+name: 我的第一個自動化任務
+
+# 1. 什麼時候觸發？(當我 Push 程式碼的時候)
+on: [push]
+
+# 2. 機器人要做什麼？
+jobs:
+  say-hello:
+    # 3. 機器人要在哪種電腦執行？(這裡用最新版的 Ubuntu)
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 4. 具體步驟
+      - name: 顯示招呼語
+        run: echo "你好！GitHub Actions 已經成功啟動了！"
+
+      - name: 顯示目前時間
+        run: date
