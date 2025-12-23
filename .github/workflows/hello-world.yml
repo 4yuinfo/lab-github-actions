@@ -1,27 +1,36 @@
-# Workflow 的名稱（會顯示在 GitHub Actions 分頁）
-name: My First Workflow
+name: Lesson 2 - Syntax and Secrets
 
-# 觸發條件：當程式碼推送到 main 分支時執行
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
-# 定義要執行的任務
+env:
+  PROJECT_TYPE: "Zola Static Site" # 定義一個全域環境變數
+
 jobs:
-  # 任務 ID，自訂名稱為 say-hello
-  say-hello:
-    # 指定執行的作業系統環境
+  prepare-and-test:
     runs-on: ubuntu-latest
-
-    # 任務裡包含的步驟
     steps:
-      # 第一步：印出訊息
-      - name: Print Greeting
-        run: echo "Hello, GitHub Actions! 我正在學習第一課。"
+      - name: Checkout Code
+        uses: actions/checkout@v4 # 這是官方提供的 Action，用來把程式碼下載到虛擬機
 
-      # 第二步：顯示目前的伺服器資訊
-      - name: Show Server Info
+      - name: Show Project Info
         run: |
-          echo "這台機器的作業系統是："
-          lsb_release -a
-          echo "目前的時間是：$(date)"
+          echo "正在處理的項目類型是: ${{ env.PROJECT_TYPE }}"
+          echo "觸發此任務的人是: ${{ github.actor }}"
+
+      # 模擬檢查 Secret 是否存在（這在部署伺服器時非常重要）
+      - name: Check Deployment Secret
+        if: github.event_name == 'push' # 只有在推送到分支時才檢查，PR 時跳過
+        run: |
+          if [ -n "${{ secrets.DEPLOY_TOKEN }}" ]; then
+            echo "✅ 發現部署 Token，準備進行上傳..."
+          else
+            echo "⚠️ 未發現 DEPLOY_TOKEN，請檢查 GitHub Secrets 設定。"
+          fi
+
+      - name: Conditional Step for Pull Requests
+        if: github.event_name == 'pull_request'
+        run: echo "這是一個 PR，我們應該先執行測試，而不是部署。"
